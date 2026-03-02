@@ -1,0 +1,32 @@
+[ ] 1. Build admin navigation shell in `src/app/(admin)/admin/layout.tsx` with links: Dashboard, Transactions, Leaderboards, Tasks, Export, Logout.
+[ ] 2. Create admin dashboard page `src/app/(admin)/admin/dashboard/page.tsx` with global filters (date range, worker, payment tag, game).
+[ ] 3. Define KPI cards in `src/components/admin/kpi-cards.tsx`:
+[ ] 4. - Total Income = sum(`amount_received`) where type=`income`.
+[ ] 5. - Total Cashout = sum(`amount_cashed_out`) where type=`cashout`.
+[ ] 6. - Net = Total Income - Total Cashout.
+[ ] 7. - Active Workers = distinct workers with at least one shift in range.
+[ ] 8. - Avg Income/Hour = total income divided by total worked hours.
+[ ] 9. Build chart components with Recharts in `src/components/admin/charts/`:
+[ ] 10. - `income-vs-cashout-trend.tsx` (line/area by day).
+[ ] 11. - `net-trend.tsx` (bar by day/week).
+[ ] 12. - `game-distribution.tsx` (bar/pie by `game_played` from income rows).
+[ ] 13. - `payment-tag-distribution.tsx` (bar/pie by `payment_tag_used` from income rows).
+[ ] 14. Add admin transactions page `src/app/(admin)/admin/transactions/page.tsx` with global searchable table and filters.
+[ ] 15. Add admin-only CSV export trigger button on transactions page, backed by `/api/export/transactions`.
+[ ] 16. Add customers leaderboard page or section (`src/app/(admin)/admin/leaderboards/page.tsx`):
+[ ] 17. - Best payer ranking by customer net in date range.
+[ ] 18. - VIP tiers (for example Bronze >=500, Silver >=1500, Gold >=3000 in last 30 days).
+[ ] 19. Add workers leaderboard section:
+[ ] 20. - Best employee ranking by net then income.
+[ ] 21. - Show worker total income, total cashout, net, worked hours, income/hour.
+[ ] 22. - Exclude admin account from worker leaderboard query.
+[ ] 23. Build admin tasks page `src/app/(admin)/admin/tasks/page.tsx`.
+[ ] 24. Implement create task form fields: title, description, assigned worker, due date, status.
+[ ] 25. Implement edit task actions: reassign, status update, due date change.
+[ ] 26. Add task status board/table grouped by `todo`, `in_progress`, `done`.
+[ ] 27. Add analytics query layer in `src/lib/queries/admin-analytics.ts` with composable date/worker filters.
+[ ] 28. Add loading skeletons and no-data states for each chart/card/table.
+[ ] 29. Validate admin restrictions in UI: hide/disable any clock in/out or create transaction controls for admin area.
+[ ] 30. Recommended Codex prompt for this phase:
+[ ] 31. "Implement admin dashboard and analytics from docs/05_ADMIN_FEATURES_ANALYTICS.txt with Recharts KPIs/trends/distributions, customer and worker leaderboards, and full admin task management."
+

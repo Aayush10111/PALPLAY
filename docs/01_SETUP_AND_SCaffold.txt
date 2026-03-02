@@ -1,0 +1,50 @@
+[ ] 1. Open VS Code terminal at project root: `c:\Users\ayush\OneDrive\Desktop\PALPLAY`.
+[ ] 2. Create the app (choose one package manager, run at parent directory where app folder should be created):
+[ ] 3. npm command: `npx create-next-app@latest palplay --typescript --tailwind --eslint --app --src-dir --import-alias "@/*"`
+[ ] 4. pnpm command: `pnpm dlx create-next-app@latest palplay --typescript --tailwind --eslint --app --src-dir --import-alias "@/*"`
+[ ] 5. Enter project folder: `cd palplay`
+[ ] 6. Install runtime dependencies:
+[ ] 7. npm: `npm install @supabase/supabase-js @supabase/ssr recharts zod react-hook-form @hookform/resolvers date-fns papaparse`
+[ ] 8. pnpm: `pnpm add @supabase/supabase-js @supabase/ssr recharts zod react-hook-form @hookform/resolvers date-fns papaparse`
+[ ] 9. Install shadcn/ui CLI:
+[ ] 10. npm: `npm install -D @types/papaparse`
+[ ] 11. pnpm: `pnpm add -D @types/papaparse`
+[ ] 12. Initialize shadcn/ui:
+[ ] 13. npm: `npx shadcn@latest init`
+[ ] 14. pnpm: `pnpm dlx shadcn@latest init`
+[ ] 15. Add base UI components (run from app root):
+[ ] 16. npm: `npx shadcn@latest add button card input label textarea select table badge dialog dropdown-menu form tabs alert skeleton separator toast`
+[ ] 17. pnpm: `pnpm dlx shadcn@latest add button card input label textarea select table badge dialog dropdown-menu form tabs alert skeleton separator toast`
+[ ] 18. Create environment file `.env.local` with placeholders:
+[ ] 19. - `NEXT_PUBLIC_SUPABASE_URL=`
+[ ] 20. - `NEXT_PUBLIC_SUPABASE_ANON_KEY=`
+[ ] 21. Create baseline folder structure in `src`:
+[ ] 22. - `src/app/(auth)/login/page.tsx`
+[ ] 23. - `src/app/(worker)/worker/dashboard/page.tsx`
+[ ] 24. - `src/app/(worker)/worker/shifts/page.tsx`
+[ ] 25. - `src/app/(worker)/worker/transactions/page.tsx`
+[ ] 26. - `src/app/(worker)/worker/reports/page.tsx`
+[ ] 27. - `src/app/(worker)/worker/tasks/page.tsx`
+[ ] 28. - `src/app/(admin)/admin/dashboard/page.tsx`
+[ ] 29. - `src/app/(admin)/admin/transactions/page.tsx`
+[ ] 30. - `src/app/(admin)/admin/leaderboards/page.tsx`
+[ ] 31. - `src/app/(admin)/admin/tasks/page.tsx`
+[ ] 32. - `src/app/api/export/transactions/route.ts`
+[ ] 33. - `src/components/shared/`
+[ ] 34. - `src/components/worker/`
+[ ] 35. - `src/components/admin/`
+[ ] 36. - `src/lib/supabase/`
+[ ] 37. - `src/lib/auth/`
+[ ] 38. - `src/lib/validation/`
+[ ] 39. - `src/lib/queries/`
+[ ] 40. - `src/types/database.ts`
+[ ] 41. Create placeholder page content for each route so navigation compiles.
+[ ] 42. Add simple navigation layout files:
+[ ] 43. - `src/app/(worker)/worker/layout.tsx`
+[ ] 44. - `src/app/(admin)/admin/layout.tsx`
+[ ] 45. Start dev server and verify routes render:
+[ ] 46. npm: `npm run dev`
+[ ] 47. pnpm: `pnpm dev`
+[ ] 48. Recommended Codex prompt for this phase:
+[ ] 49. "Implement the setup scaffold from docs/01_SETUP_AND_SCaffold.txt, create all listed route placeholders and folders, wire basic layouts, and ensure `npm run dev` starts without errors."
+

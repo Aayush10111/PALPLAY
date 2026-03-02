@@ -1,0 +1,38 @@
+[ ] 1. Build worker navigation shell in `src/app/(worker)/worker/layout.tsx` with links: Dashboard, Shifts, Transactions, Reports, Tasks, Logout.
+[ ] 2. Create shared validation schemas:
+[ ] 3. - `src/lib/validation/transaction.ts` for income/cashout payloads.
+[ ] 4. - `src/lib/validation/shift.ts` for clock in/out actions.
+[ ] 5. Implement shifts page `src/app/(worker)/worker/shifts/page.tsx`.
+[ ] 6. Add query for active shift (`clock_out_at is null`) for current user in `src/lib/queries/shifts.ts`.
+[ ] 7. Add Clock In button: insert row into `public.shifts` with `user_id=auth.uid()`, `clock_in_at=now()`.
+[ ] 8. Add Clock Out button: update active row `clock_out_at=now()`.
+[ ] 9. Block multiple active shifts in UI and DB call logic.
+[ ] 10. Show shift summary card: current status, today total hours, last 7 days hours.
+[ ] 11. Implement transactions page `src/app/(worker)/worker/transactions/page.tsx`.
+[ ] 12. Build tabbed form for `income` and `cashout` using `react-hook-form` + `zod`.
+[ ] 13. Income form fields: `occurred_at`, `customer_name`, `amount_received`, `credit_loaded`, `payment_tag_used`, `game_played`, `notes`.
+[ ] 14. Cashout form fields: `occurred_at`, `customer_name`, `amount_cashed_out`, `amount_redeemed`, `redeemed`, `notes`.
+[ ] 15. Apply validation rules:
+[ ] 16. - Positive numeric checks.
+[ ] 17. - `amount_redeemed` only when redeemed is true.
+[ ] 18. - Required `customer_name` and `occurred_at`.
+[ ] 19. Persist form rows in `public.transactions` with current `user_id`.
+[ ] 20. Add worker transactions list with filters in same page or `src/components/worker/transaction-list.tsx`.
+[ ] 21. Implement filters: date range, type (income/cashout), customer search, game, payment tag.
+[ ] 22. Implement pagination (server-side with limit/offset) and sortable columns (`occurred_at`, amounts).
+[ ] 23. Implement worker report page `src/app/(worker)/worker/reports/page.tsx`.
+[ ] 24. Add aggregates in `src/lib/queries/worker-reports.ts` scoped to current `user_id`:
+[ ] 25. - Top customers by net.
+[ ] 26. - VIP customers (`sum(amount_received)` last 30 days >= 500).
+[ ] 27. - Top games by income volume.
+[ ] 28. - Top payment tags by income volume.
+[ ] 29. Add simple cards/tables for report outputs with date range filter.
+[ ] 30. Implement tasks page `src/app/(worker)/worker/tasks/page.tsx`.
+[ ] 31. Query tasks where `assigned_to = auth.uid()`.
+[ ] 32. Add status change action for worker (`todo` -> `in_progress` -> `done`).
+[ ] 33. When status becomes `done`, set `completed_at=now()`.
+[ ] 34. Add empty states and error toasts for all worker pages.
+[ ] 35. Verify worker permissions via app behavior and Supabase logs: no cross-worker data.
+[ ] 36. Recommended Codex prompt for this phase:
+[ ] 37. "Implement worker features from docs/04_WORKER_FEATURES.txt: shifts clock in/out, income/cashout forms with zod validation, filtered paginated transaction list, worker-scoped reports, and task completion flow."
+

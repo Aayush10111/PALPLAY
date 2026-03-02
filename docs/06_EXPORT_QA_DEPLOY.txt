@@ -1,0 +1,44 @@
+[ ] 1. Create export API route at `src/app/api/export/transactions/route.ts`.
+[ ] 2. In route handler, verify session and role = `admin`; return 403 for workers.
+[ ] 3. Query filtered transactions and convert rows to CSV using `papaparse` (`unparse`) or manual serializer.
+[ ] 4. Return CSV response headers:
+[ ] 5. - `Content-Type: text/csv; charset=utf-8`
+[ ] 6. - `Content-Disposition: attachment; filename="transactions-YYYY-MM-DD.csv"`
+[ ] 7. Add admin UI export button in `src/app/(admin)/admin/transactions/page.tsx` to call API and download file.
+[ ] 8. Validate exported columns include: timestamp, worker, type, customer_name, amount_received, amount_cashed_out, payment_tag_used, game_played, redeemed, notes.
+[ ] 9. Edge-case validation checklist:
+[ ] 10. - Prevent negative numbers on all amount fields.
+[ ] 11. - Enforce income row cannot include cashout amount.
+[ ] 12. - Enforce cashout row cannot include income amount.
+[ ] 13. - Enforce `redeemed=false` implies `amount_redeemed=0`.
+[ ] 14. - Prevent worker from clocking in if active shift already exists.
+[ ] 15. - Prevent worker from clocking out when no active shift exists.
+[ ] 16. - Ensure empty report/chart states are user-friendly.
+[ ] 17. Permission and RLS testing checklist (use all 5 accounts):
+[ ] 18. - Worker A can only read/write Worker A transactions and shifts.
+[ ] 19. - Worker A cannot query Worker B data even by URL manipulation.
+[ ] 20. - Worker can only see tasks assigned to self.
+[ ] 21. - Admin can read all rows in profiles/shifts/transactions/tasks.
+[ ] 22. - Strict mode: admin cannot insert/update shifts and transactions.
+[ ] 23. - Worker cannot open `/admin/*`; admin cannot open `/worker/*`.
+[ ] 24. Manual QA checklist:
+[ ] 25. - Login/logout works reliably after refresh.
+[ ] 26. - Date range filters affect KPIs/charts/leaderboards consistently.
+[ ] 27. - VIP and best payer calculations match SQL spot checks.
+[ ] 28. - Best employee income/hour matches shift-hour math.
+[ ] 29. - Mobile layout is usable for key actions (clock in/out, transaction submit, task complete).
+[ ] 30. Deployment steps (Vercel + Supabase):
+[ ] 31. - Push repo to GitHub.
+[ ] 32. - In Vercel, import repo and deploy with framework preset Next.js.
+[ ] 33. - Set env vars in Vercel project settings:
+[ ] 34.   `NEXT_PUBLIC_SUPABASE_URL`
+[ ] 35.   `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+[ ] 36. - Redeploy after env var setup.
+[ ] 37. - In Supabase Auth URL settings, add Vercel production URL and preview URLs to allowed redirect list.
+[ ] 38. Production verification checklist:
+[ ] 39. - Log in as worker and verify worker flows.
+[ ] 40. - Log in as admin and verify dashboards/export/tasks.
+[ ] 41. - Run a quick RLS smoke test by attempting forbidden actions in UI and confirming failure.
+[ ] 42. - Confirm no server errors in Vercel logs and no RLS errors for allowed flows.
+[ ] 43. Recommended Codex prompt for this phase:
+[ ] 44. "Implement docs/06_EXPORT_QA_DEPLOY.txt: admin CSV export endpoint and UI, then run a structured QA pass for validation/RLS/deployment readiness and report unresolved issues."

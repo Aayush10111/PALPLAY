@@ -1,0 +1,32 @@
+[ ] 1. Create Supabase client helpers:
+[ ] 2. - `src/lib/supabase/client.ts` for browser client.
+[ ] 3. - `src/lib/supabase/server.ts` for server-side client with cookies.
+[ ] 4. - `src/lib/supabase/middleware.ts` helper used by Next middleware.
+[ ] 5. Add env validation in `src/lib/env.ts` for `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+[ ] 6. Build login page at `src/app/(auth)/login/page.tsx` with email/password form using `react-hook-form` + `zod`.
+[ ] 7. On successful sign-in, read profile role and redirect:
+[ ] 8. - worker -> `/worker/dashboard`
+[ ] 9. - admin -> `/admin/dashboard`
+[ ] 10. Add logout action button component at `src/components/shared/logout-button.tsx` that calls `supabase.auth.signOut()`.
+[ ] 11. Create `src/middleware.ts` to guard routes:
+[ ] 12. - Unauthenticated user hitting `/worker/*` or `/admin/*` -> redirect `/login`.
+[ ] 13. - Authenticated user hitting `/login` -> redirect by role.
+[ ] 14. - Worker hitting `/admin/*` -> redirect `/worker/dashboard`.
+[ ] 15. - Admin hitting `/worker/*` -> redirect `/admin/dashboard`.
+[ ] 16. Create role utility in `src/lib/auth/get-user-role.ts` to fetch role from `profiles`.
+[ ] 17. Add server-side guard wrapper for protected pages in `src/lib/auth/require-role.ts`.
+[ ] 18. Update route layouts:
+[ ] 19. - `src/app/(worker)/worker/layout.tsx` calls role guard for `worker`.
+[ ] 20. - `src/app/(admin)/admin/layout.tsx` calls role guard for `admin`.
+[ ] 21. Add session refresh handling in middleware using Supabase SSR helper.
+[ ] 22. Add friendly unauthorized page at `src/app/unauthorized/page.tsx`.
+[ ] 23. Add auth loading and error UI states in login page and layouts.
+[ ] 24. Test matrix:
+[ ] 25. - Worker login lands on worker dashboard.
+[ ] 26. - Admin login lands on admin dashboard.
+[ ] 27. - Worker blocked from admin routes.
+[ ] 28. - Admin blocked from worker routes.
+[ ] 29. - Logout returns to `/login`.
+[ ] 30. Recommended Codex prompt for this phase:
+[ ] 31. "Implement Supabase auth + role-based routing from docs/03_AUTH_AND_ROLE_ROUTING.txt with middleware, protected layouts, login redirect logic, and logout; include robust error/loading states."
+

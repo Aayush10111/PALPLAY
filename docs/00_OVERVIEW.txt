@@ -1,0 +1,26 @@
+[ ] 1. Write the project mission at the top of your workspace notes: "Internal daily report web app with 4 workers + 1 admin, role-safe data, and deploy on free tiers."
+[ ] 2. Confirm stack constraints: Next.js App Router + TypeScript, Tailwind CSS + shadcn/ui, Supabase Auth + Postgres + RLS, Recharts, Vercel free tier.
+[ ] 3. Confirm non-goals before coding: no separate customers table; `customer_name` is plain text in `transactions`.
+[ ] 4. Record core tables to implement: `profiles`, `shifts`, `transactions`, `tasks`.
+[ ] 5. Record worker permissions: login, clock in/out, create income/cashout, view own data reports, complete assigned tasks, logout.
+[ ] 6. Record worker restrictions: cannot view other workers' data, cannot access admin pages, cannot manage users.
+[ ] 7. Record admin permissions: login, view all transactions/shifts/tasks, analytics, leaderboards, task management, CSV export, logout.
+[ ] 8. Record admin restrictions: must not clock in/out and must not create transactions.
+[ ] 9. Define payment tag correctly in docs and UI copy: "Payment tag = receiving account money came into (Chime/CashApp/Zelle/Bank/PayPal/etc.), not a customer tag."
+[ ] 10. Define default VIP rule: customer is VIP when `sum(amount_received)` in last 30 days is `>= 500` (configurable later).
+[ ] 11. Define best payer metric: rank customer by `net = sum(amount_received) - sum(amount_cashed_out)` for selected date range.
+[ ] 12. Define best employee metric: rank worker by net, then income, and display income/hour using shift duration.
+[ ] 13. Decide a done condition for worker workflow: worker can log in, clock in, submit income/cashout, see own filtered list, see own report, complete task, log out.
+[ ] 14. Decide a done condition for admin workflow: admin can log in, see global dashboards/charts/leaderboards, manage tasks, export CSV, log out.
+[ ] 15. Define security done condition: RLS blocks worker cross-access; strict option blocks admin insert on `shifts` and `transactions`.
+[ ] 16. Define quality done condition: basic validation on all forms, loading/error states, and empty states for lists/charts.
+[ ] 17. Define deployment done condition: production URL on Vercel with Supabase env vars set; auth and RLS verified in production.
+[ ] 18. Success criteria checklist:
+[ ] 19. - Worker cannot see any other worker records in `transactions`, `shifts`, or `tasks`.
+[ ] 20. - Admin can see global data but cannot create `shifts`/`transactions` under strict policy mode.
+[ ] 21. - Customer reports and leaderboards match SQL aggregates for same date range.
+[ ] 22. - CSV export output is correct and downloadable from admin area.
+[ ] 23. - App is usable on desktop and mobile with no blocking UI issues.
+[ ] 24. Recommended Codex prompt for this phase (run in VS Code chat):
+[ ] 25. "Read docs/00_OVERVIEW.txt and produce a concise implementation plan with milestones for schema, auth, worker flows, admin analytics, and deployment; do not write app code yet."
+

@@ -1,0 +1,235 @@
+[ ] 1. In Supabase project dashboard, open SQL Editor and run the full schema script below.
+[ ] 2. Copy-paste SQL (single run):
+[ ] 3. ```sql
+[ ] 4. -- Extensions
+[ ] 5. create extension if not exists "pgcrypto";
+[ ] 6.
+[ ] 7. -- Role enum
+[ ] 8. do $$ begin
+[ ] 9.   create type public.app_role as enum ('admin','worker');
+[ ] 10. exception
+[ ] 11.   when duplicate_object then null;
+[ ] 12. end $$;
+[ ] 13.
+[ ] 14. -- Transaction type enum
+[ ] 15. do $$ begin
+[ ] 16.   create type public.transaction_type as enum ('income','cashout');
+[ ] 17. exception
+[ ] 18.   when duplicate_object then null;
+[ ] 19. end $$;
+[ ] 20.
+[ ] 21. -- Task status enum
+[ ] 22. do $$ begin
+[ ] 23.   create type public.task_status as enum ('todo','in_progress','done');
+[ ] 24. exception
+[ ] 25.   when duplicate_object then null;
+[ ] 26. end $$;
+[ ] 27.
+[ ] 28. create table if not exists public.profiles (
+[ ] 29.   id uuid primary key references auth.users(id) on delete cascade,
+[ ] 30.   full_name text not null,
+[ ] 31.   role public.app_role not null default 'worker',
+[ ] 32.   is_active boolean not null default true,
+[ ] 33.   created_at timestamptz not null default now(),
+[ ] 34.   updated_at timestamptz not null default now()
+[ ] 35. );
+[ ] 36.
+[ ] 37. create table if not exists public.shifts (
+[ ] 38.   id uuid primary key default gen_random_uuid(),
+[ ] 39.   user_id uuid not null references public.profiles(id) on delete cascade,
+[ ] 40.   clock_in_at timestamptz not null,
+[ ] 41.   clock_out_at timestamptz,
+[ ] 42.   notes text,
+[ ] 43.   created_at timestamptz not null default now(),
+[ ] 44.   updated_at timestamptz not null default now(),
+[ ] 45.   constraint shifts_time_valid check (clock_out_at is null or clock_out_at >= clock_in_at)
+[ ] 46. );
+[ ] 47.
+[ ] 48. create table if not exists public.transactions (
+[ ] 49.   id uuid primary key default gen_random_uuid(),
+[ ] 50.   user_id uuid not null references public.profiles(id) on delete cascade,
+[ ] 51.   occurred_at timestamptz not null default now(),
+[ ] 52.   type public.transaction_type not null,
+[ ] 53.   customer_name text not null,
+[ ] 54.   amount_received numeric(12,2) not null default 0,
+[ ] 55.   credit_loaded numeric(12,2) not null default 0,
+[ ] 56.   payment_tag_used text,
+[ ] 57.   game_played text,
+[ ] 58.   amount_cashed_out numeric(12,2) not null default 0,
+[ ] 59.   amount_redeemed numeric(12,2) not null default 0,
+[ ] 60.   redeemed boolean not null default false,
+[ ] 61.   notes text,
+[ ] 62.   created_at timestamptz not null default now(),
+[ ] 63.   updated_at timestamptz not null default now(),
+[ ] 64.   constraint transactions_positive_amounts check (
+[ ] 65.     amount_received >= 0 and credit_loaded >= 0 and amount_cashed_out >= 0 and amount_redeemed >= 0
+[ ] 66.   ),
+[ ] 67.   constraint transactions_income_rule check (
+[ ] 68.     type <> 'income' or (amount_received > 0 and amount_cashed_out = 0)
+[ ] 69.   ),
+[ ] 70.   constraint transactions_cashout_rule check (
+[ ] 71.     type <> 'cashout' or (amount_cashed_out > 0 and amount_received = 0)
+[ ] 72.   ),
+[ ] 73.   constraint transactions_redeemed_rule check (
+[ ] 74.     (redeemed = false and amount_redeemed = 0)
+[ ] 75.     or
+[ ] 76.     (redeemed = true and amount_redeemed >= 0 and amount_redeemed <= amount_cashed_out)
+[ ] 77.   )
+[ ] 78. );
+[ ] 79.
+[ ] 80. create table if not exists public.tasks (
+[ ] 81.   id uuid primary key default gen_random_uuid(),
+[ ] 82.   title text not null,
+[ ] 83.   description text,
+[ ] 84.   assigned_to uuid references public.profiles(id) on delete set null,
+[ ] 85.   status public.task_status not null default 'todo',
+[ ] 86.   due_at timestamptz,
+[ ] 87.   completed_at timestamptz,
+[ ] 88.   created_by uuid not null references public.profiles(id) on delete restrict,
+[ ] 89.   created_at timestamptz not null default now(),
+[ ] 90.   updated_at timestamptz not null default now(),
+[ ] 91.   constraint tasks_done_timestamp check (
+[ ] 92.     (status <> 'done' and completed_at is null) or (status = 'done' and completed_at is not null)
+[ ] 93.   )
+[ ] 94. );
+[ ] 95.
+[ ] 96. -- Helpful indexes
+[ ] 97. create index if not exists idx_profiles_role on public.profiles(role);
+[ ] 98. create index if not exists idx_shifts_user_clockin on public.shifts(user_id, clock_in_at desc);
+[ ] 99. create index if not exists idx_transactions_user_time on public.transactions(user_id, occurred_at desc);
+[ ] 100. create index if not exists idx_transactions_customer_time on public.transactions(customer_name, occurred_at desc);
+[ ] 101. create index if not exists idx_transactions_type_time on public.transactions(type, occurred_at desc);
+[ ] 102. create index if not exists idx_tasks_assigned_status on public.tasks(assigned_to, status, due_at);
+[ ] 103.
+[ ] 104. -- Update timestamp trigger
+[ ] 105. create or replace function public.set_updated_at()
+[ ] 106. returns trigger language plpgsql as $$
+[ ] 107. begin
+[ ] 108.   new.updated_at = now();
+[ ] 109.   return new;
+[ ] 110. end $$;
+[ ] 111.
+[ ] 112. drop trigger if exists trg_profiles_updated on public.profiles;
+[ ] 113. create trigger trg_profiles_updated before update on public.profiles
+[ ] 114. for each row execute function public.set_updated_at();
+[ ] 115.
+[ ] 116. drop trigger if exists trg_shifts_updated on public.shifts;
+[ ] 117. create trigger trg_shifts_updated before update on public.shifts
+[ ] 118. for each row execute function public.set_updated_at();
+[ ] 119.
+[ ] 120. drop trigger if exists trg_transactions_updated on public.transactions;
+[ ] 121. create trigger trg_transactions_updated before update on public.transactions
+[ ] 122. for each row execute function public.set_updated_at();
+[ ] 123.
+[ ] 124. drop trigger if exists trg_tasks_updated on public.tasks;
+[ ] 125. create trigger trg_tasks_updated before update on public.tasks
+[ ] 126. for each row execute function public.set_updated_at();
+[ ] 127.
+[ ] 128. -- Role helper functions
+[ ] 129. create or replace function public.my_role()
+[ ] 130. returns public.app_role
+[ ] 131. language sql
+[ ] 132. stable
+[ ] 133. security definer
+[ ] 134. set search_path = public
+[ ] 135. as $$
+[ ] 136.   select role from public.profiles where id = auth.uid();
+[ ] 137. $$;
+[ ] 138.
+[ ] 139. create or replace function public.is_admin()
+[ ] 140. returns boolean
+[ ] 141. language sql
+[ ] 142. stable
+[ ] 143. security definer
+[ ] 144. set search_path = public
+[ ] 145. as $$
+[ ] 146.   select coalesce((select role = 'admin' from public.profiles where id = auth.uid()), false);
+[ ] 147. $$;
+[ ] 148.
+[ ] 149. -- Enable RLS
+[ ] 150. alter table public.profiles enable row level security;
+[ ] 151. alter table public.shifts enable row level security;
+[ ] 152. alter table public.transactions enable row level security;
+[ ] 153. alter table public.tasks enable row level security;
+[ ] 154.
+[ ] 155. -- Profiles policies
+[ ] 156. drop policy if exists profiles_select_self_or_admin on public.profiles;
+[ ] 157. create policy profiles_select_self_or_admin on public.profiles
+[ ] 158. for select using (id = auth.uid() or public.is_admin());
+[ ] 159.
+[ ] 160. drop policy if exists profiles_update_self_or_admin on public.profiles;
+[ ] 161. create policy profiles_update_self_or_admin on public.profiles
+[ ] 162. for update using (id = auth.uid() or public.is_admin())
+[ ] 163. with check (id = auth.uid() or public.is_admin());
+[ ] 164.
+[ ] 165. -- Shifts policies
+[ ] 166. drop policy if exists shifts_select_own_or_admin on public.shifts;
+[ ] 167. create policy shifts_select_own_or_admin on public.shifts
+[ ] 168. for select using (user_id = auth.uid() or public.is_admin());
+[ ] 169.
+[ ] 170. drop policy if exists shifts_insert_worker_only_self on public.shifts;
+[ ] 171. create policy shifts_insert_worker_only_self on public.shifts
+[ ] 172. for insert with check (user_id = auth.uid() and public.my_role() = 'worker');
+[ ] 173.
+[ ] 174. drop policy if exists shifts_update_worker_self_or_admin on public.shifts;
+[ ] 175. create policy shifts_update_worker_self_or_admin on public.shifts
+[ ] 176. for update using ((user_id = auth.uid() and public.my_role() = 'worker') or public.is_admin())
+[ ] 177. with check ((user_id = auth.uid() and public.my_role() = 'worker') or public.is_admin());
+[ ] 178.
+[ ] 179. -- Transactions policies
+[ ] 180. drop policy if exists transactions_select_own_or_admin on public.transactions;
+[ ] 181. create policy transactions_select_own_or_admin on public.transactions
+[ ] 182. for select using (user_id = auth.uid() or public.is_admin());
+[ ] 183.
+[ ] 184. drop policy if exists transactions_insert_worker_only_self on public.transactions;
+[ ] 185. create policy transactions_insert_worker_only_self on public.transactions
+[ ] 186. for insert with check (user_id = auth.uid() and public.my_role() = 'worker');
+[ ] 187.
+[ ] 188. drop policy if exists transactions_update_worker_self_or_admin on public.transactions;
+[ ] 189. create policy transactions_update_worker_self_or_admin on public.transactions
+[ ] 190. for update using ((user_id = auth.uid() and public.my_role() = 'worker') or public.is_admin())
+[ ] 191. with check ((user_id = auth.uid() and public.my_role() = 'worker') or public.is_admin());
+[ ] 192.
+[ ] 193. -- Tasks policies
+[ ] 194. drop policy if exists tasks_select_assigned_or_admin on public.tasks;
+[ ] 195. create policy tasks_select_assigned_or_admin on public.tasks
+[ ] 196. for select using (assigned_to = auth.uid() or public.is_admin());
+[ ] 197.
+[ ] 198. drop policy if exists tasks_insert_admin_only on public.tasks;
+[ ] 199. create policy tasks_insert_admin_only on public.tasks
+[ ] 200. for insert with check (public.is_admin());
+[ ] 201.
+[ ] 202. drop policy if exists tasks_update_assigned_or_admin on public.tasks;
+[ ] 203. create policy tasks_update_assigned_or_admin on public.tasks
+[ ] 204. for update using (assigned_to = auth.uid() or public.is_admin())
+[ ] 205. with check (assigned_to = auth.uid() or public.is_admin());
+[ ] 206.
+[ ] 207. -- STRICT OPTION: block admin writes to shifts/transactions completely
+[ ] 208. -- Keep enabled if admin must never insert or update these business events.
+[ ] 209. -- These policies are already worker-only for INSERT, but this additionally blocks admin UPDATE.
+[ ] 210. drop policy if exists shifts_update_worker_self_or_admin on public.shifts;
+[ ] 211. create policy shifts_update_worker_self_only_strict on public.shifts
+[ ] 212. for update using (user_id = auth.uid() and public.my_role() = 'worker')
+[ ] 213. with check (user_id = auth.uid() and public.my_role() = 'worker');
+[ ] 214.
+[ ] 215. drop policy if exists transactions_update_worker_self_or_admin on public.transactions;
+[ ] 216. create policy transactions_update_worker_self_only_strict on public.transactions
+[ ] 217. for update using (user_id = auth.uid() and public.my_role() = 'worker')
+[ ] 218. with check (user_id = auth.uid() and public.my_role() = 'worker');
+[ ] 219. ```
+[ ] 220. Create 5 Supabase Auth users in Authentication -> Users: 4 workers and 1 admin email.
+[ ] 221. Note each generated `auth.users.id` UUID for profile seeding.
+[ ] 222. Insert profile rows in SQL Editor (replace UUID/email/name):
+[ ] 223. ```sql
+[ ] 224. insert into public.profiles (id, full_name, role) values
+[ ] 225. ('00000000-0000-0000-0000-000000000001','Worker One','worker'),
+[ ] 226. ('00000000-0000-0000-0000-000000000002','Worker Two','worker'),
+[ ] 227. ('00000000-0000-0000-0000-000000000003','Worker Three','worker'),
+[ ] 228. ('00000000-0000-0000-0000-000000000004','Worker Four','worker'),
+[ ] 229. ('00000000-0000-0000-0000-000000000005','Admin User','admin')
+[ ] 230. on conflict (id) do update set full_name = excluded.full_name, role = excluded.role;
+[ ] 231. ```
+[ ] 232. Verify RLS manually with SQL impersonation (or app tests) before continuing auth UI work.
+[ ] 233. Recommended Codex prompt for this phase:
+[ ] 234. "Use docs/02_SUPABASE_SCHEMA_AND_RLS.txt to generate migration SQL files and typed TS models for profiles/shifts/transactions/tasks; keep RLS policies exactly as specified."
+
