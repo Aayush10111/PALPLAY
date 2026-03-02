@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { isMockMode } from "@/lib/env";
 import { MOCK_TRANSACTIONS, MOCK_USERS } from "@/lib/mock-data";
+import type { Database } from "@/types/database";
 import { createClient } from "@/lib/supabase/client";
 import {
   computeTopCustomers,
@@ -27,6 +28,8 @@ function defaultTo() {
   return new Date().toISOString().slice(0, 16);
 }
 
+type WorkerTxRow = Database["public"]["Tables"]["transactions"]["Row"];
+
 export default function WorkerReportsPage() {
   const [from, setFrom] = useState(defaultFrom());
   const [to, setTo] = useState(defaultTo());
@@ -40,11 +43,12 @@ export default function WorkerReportsPage() {
     try {
       setIsLoading(true);
       if (isMockMode()) {
-        const rows = MOCK_TRANSACTIONS.filter((tx) => tx.user_id === MOCK_USERS.workers[0].id);
-        setTopCustomers(computeTopCustomers(rows as never));
-        setVipCustomers(computeVipCustomers(rows as never));
-        setTopGames(computeTopGames(rows as never));
-        setTopTags(computeTopPaymentTags(rows as never));
+        const mockRows: WorkerTxRow[] = MOCK_TRANSACTIONS;
+        const rows = mockRows.filter((tx) => tx.user_id === MOCK_USERS.workers[0].id);
+        setTopCustomers(computeTopCustomers(rows));
+        setVipCustomers(computeVipCustomers(rows));
+        setTopGames(computeTopGames(rows));
+        setTopTags(computeTopPaymentTags(rows));
         return;
       }
 
