@@ -10,7 +10,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { isMockMode, isSupabaseConfigured } from "@/lib/env";
-import { resolveMockUserFromEmail, setMockUserSession } from "@/lib/mock-auth";
+import {
+  resolveSimpleMockUser,
+  setMockUserSession,
+  SIMPLE_LOGIN_EMAILS,
+  SIMPLE_LOGIN_PASSWORD,
+} from "@/lib/mock-auth";
 import { createClient } from "@/lib/supabase/client";
 
 const loginSchema = z.object({
@@ -36,8 +41,11 @@ export default function LoginPage() {
     setAuthError(null);
 
     if (isMockMode()) {
-      const email = values.email.trim().toLowerCase();
-      const mockUser = resolveMockUserFromEmail(email);
+      const mockUser = resolveSimpleMockUser(values.email, values.password);
+      if (!mockUser) {
+        setAuthError(`Use one of: ${SIMPLE_LOGIN_EMAILS.join(", ")} with password ${SIMPLE_LOGIN_PASSWORD}.`);
+        return;
+      }
       setMockUserSession(mockUser);
       router.replace(mockUser.role === "admin" ? "/admin/dashboard" : "/worker/dashboard");
       router.refresh();
@@ -99,7 +107,11 @@ export default function LoginPage() {
         <Card className="border-2 shadow-sm">
           <CardHeader>
             <CardTitle>Sign In</CardTitle>
-            <CardDescription>Enter credentials provided by admin.</CardDescription>
+            <CardDescription>
+              {isMockMode()
+                ? `Simple logins: ${SIMPLE_LOGIN_EMAILS.join(", ")} (password: ${SIMPLE_LOGIN_PASSWORD})`
+                : "Enter credentials provided by admin."}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>

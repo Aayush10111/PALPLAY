@@ -5,7 +5,11 @@ import { createClient } from "@/lib/supabase/server";
 import { getUserRole } from "@/lib/auth/get-user-role";
 
 export async function requireRole(requiredRole: AppRole) {
-  if ((isMockMode() || !isSupabaseConfigured()) && process.env.NODE_ENV !== "production") {
+  if (isMockMode()) {
+    return { user: null, role: requiredRole };
+  }
+
+  if (!isSupabaseConfigured() && process.env.NODE_ENV !== "production") {
     return { user: null, role: requiredRole };
   }
 

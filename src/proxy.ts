@@ -7,7 +7,11 @@ const adminPrefix = "/admin";
 const loginPath = "/login";
 
 export async function proxy(request: NextRequest) {
-  if ((isMockMode() || !isSupabaseConfigured()) && process.env.NODE_ENV !== "production") {
+  if (isMockMode()) {
+    return NextResponse.next();
+  }
+
+  if (!isSupabaseConfigured() && process.env.NODE_ENV !== "production") {
     return NextResponse.next();
   }
 
