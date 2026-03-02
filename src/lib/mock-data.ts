@@ -1,3 +1,9 @@
+import type { Database } from "@/types/database";
+
+type MockTransactionRow = Database["public"]["Tables"]["transactions"]["Row"];
+type MockShiftRow = Database["public"]["Tables"]["shifts"]["Row"];
+type MockTaskRow = Database["public"]["Tables"]["tasks"]["Row"];
+
 export const MOCK_USERS = {
   admin: { id: "58e5d439-4884-4a56-88f4-88e6247976e7", full_name: "PAL PAY HUSTEL ADMIN", role: "admin" as const },
   workers: [
@@ -8,9 +14,9 @@ export const MOCK_USERS = {
   ],
 };
 
-export const MOCK_TRANSACTIONS = [];
-export const MOCK_SHIFTS = [];
-export const MOCK_TASKS = [];
+export const MOCK_TRANSACTIONS: MockTransactionRow[] = [];
+export const MOCK_SHIFTS: MockShiftRow[] = [];
+export const MOCK_TASKS: MockTaskRow[] = [];
 
 export function getMockProfiles() {
   return [MOCK_USERS.admin, ...MOCK_USERS.workers];
