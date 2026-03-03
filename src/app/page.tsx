@@ -22,9 +22,6 @@ export default function HomePage() {
           <Button asChild size="lg">
             <Link href="/login">Open Login</Link>
           </Button>
-          <Button asChild size="lg" variant="outline">
-            <Link href="/worker/dashboard">Worker Demo Route</Link>
-          </Button>
         </CardContent>
       </Card>
     </main>

@@ -65,7 +65,12 @@ export default function LoginPage() {
     });
 
     if (error || !data.user) {
-      setAuthError(error?.message ?? "Unable to sign in.");
+      const normalized = (error?.message ?? "").toLowerCase();
+      if (normalized.includes("invalid login credentials")) {
+        setAuthError("Invalid email/password for Supabase Auth. Create the user in Supabase Auth > Users or reset the password.");
+      } else {
+        setAuthError(error?.message ?? "Unable to sign in.");
+      }
       return;
     }
 

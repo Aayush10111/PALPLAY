@@ -35,6 +35,12 @@ export function isSupabaseConfigured() {
 }
 
 export function isMockMode() {
-  return process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true";
-}
+  const flag = process.env.NEXT_PUBLIC_USE_MOCK_DATA;
 
+  // In local development, default to mock mode unless explicitly disabled.
+  if (process.env.NODE_ENV !== "production") {
+    return flag !== "false";
+  }
+
+  return flag === "true";
+}
