@@ -29,10 +29,12 @@ export function WorkerPerformanceChart({ data, mode }: Readonly<WorkerPerformanc
               borderRadius: "8px",
               color: "#f9fafb",
             }}
-            formatter={(value: number, key: string) => [
-              Number(value).toFixed(2),
-              key === "incomePerHour" ? "Income/Hour" : key === "income" ? "Income" : "Net",
-            ]}
+            formatter={(value, name) => {
+              const metric = name ?? "";
+              const label =
+                metric === "incomePerHour" ? "Income/Hour" : metric === "income" ? "Income" : "Net";
+              return [Number(value ?? 0).toFixed(2), label];
+            }}
           />
           <Bar dataKey={mode} fill="#facc15" radius={[0, 6, 6, 0]} />
         </BarChart>
