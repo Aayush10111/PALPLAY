@@ -68,6 +68,11 @@ export function computeKpis(dataset: AdminDataset) {
   const totalCashout = dataset.transactions.reduce((sum, tx) => sum + Number(tx.amount_cashed_out ?? 0), 0);
   const net = totalIncome - totalCashout;
   const activeWorkers = new Set(dataset.shifts.map((s) => s.user_id)).size;
+  const transactionsCount = dataset.transactions.length;
+  const avgTicket = transactionsCount > 0 ? totalIncome / transactionsCount : 0;
+  const cashoutCount = dataset.transactions.filter((tx) => tx.type === "cashout").length;
+  const redeemedCount = dataset.transactions.filter((tx) => tx.redeemed).length;
+  const redemptionRate = cashoutCount > 0 ? (redeemedCount / cashoutCount) * 100 : 0;
 
   const hours = dataset.shifts.reduce((sum, shift) => {
     if (!shift.clock_out_at) return sum;
@@ -82,6 +87,9 @@ export function computeKpis(dataset: AdminDataset) {
     net,
     activeWorkers,
     avgIncomePerHour,
+    avgTicket,
+    transactionsCount,
+    redemptionRate,
     hours,
   };
 }
@@ -196,6 +204,62 @@ export function workerLeaderboard(dataset: AdminDataset) {
       return { user_id, workerName, hours, incomePerHour, ...stats };
     })
     .sort((a, b) => (b.net - a.net) || (b.income - a.income));
+}
+
+export function getDashboardFilterOptions(dataset: AdminDataset) {
+  const workerIds = new Set<string>();
+  const games = new Set<string>();
+  const tags = new Set<string>();
+
+  for (const tx of dataset.transactions) {
+    workerIds.add(tx.user_id);
+    if (tx.game_played) games.add(tx.game_played);
+    if (tx.payment_tag_used) tags.add(tx.payment_tag_used);
+  }
+
+  const workers = dataset.profiles
+    .filter((profile) => workerIds.has(profile.id) && profile.role === "worker")
+    .map((profile) => ({ id: profile.id, label: profile.full_name }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+
+  return {
+    workers,
+    games: [...games].sort((a, b) => a.localeCompare(b)),
+    paymentTags: [...tags].sort((a, b) => a.localeCompare(b)),
+  };
+}
+
+export function getDashboardInsights(dataset: AdminDataset) {
+  const kpis = computeKpis(dataset);
+  const insights: string[] = [];
+  const totalVolume = kpis.totalIncome + kpis.totalCashout;
+  const cashoutRatio = totalVolume > 0 ? (kpis.totalCashout / totalVolume) * 100 : 0;
+
+  if (cashoutRatio > 60) {
+    insights.push("Cashout ratio is unusually high for this period.");
+  }
+
+  const tags = paymentTagDistribution(dataset);
+  if (tags.length > 1) {
+    const first = tags[0]?.value ?? 0;
+    const second = tags[1]?.value ?? 0;
+    if (first > second * 2) {
+      insights.push(`Payment account concentration is high: ${tags[0].name} dominates current inflows.`);
+    }
+  }
+
+  const workers = workerLeaderboard(dataset);
+  if (workers.length > 0 && workers[0].hours > 0 && workers[0].incomePerHour > 0) {
+    insights.push(
+      `Top worker by net is ${workers[0].workerName} with ${workers[0].incomePerHour.toFixed(2)} income/hour.`,
+    );
+  }
+
+  if (insights.length === 0) {
+    insights.push("No unusual risk signals detected for the selected range.");
+  }
+
+  return insights;
 }
 
 

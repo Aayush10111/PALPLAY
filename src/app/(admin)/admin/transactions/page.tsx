@@ -30,6 +30,7 @@ type DayGroup = {
 
 export default function AdminTransactionsPage() {
   const [isLoading, setIsLoading] = useState(true);
+  const [isExporting, setIsExporting] = useState(false);
   const [monthCursor, setMonthCursor] = useState(new Date());
   const [rows, setRows] = useState<TxRow[]>([]);
   const [workerMap, setWorkerMap] = useState<Record<string, string>>({});
@@ -81,6 +82,39 @@ export default function AdminTransactionsPage() {
   }, [loadRows]);
 
   const monthLabel = format(monthCursor, "MMMM yyyy");
+  const fromIso = startOfMonth(monthCursor).toISOString();
+  const toIso = endOfMonth(monthCursor).toISOString();
+
+  const handleExport = async () => {
+    try {
+      setIsExporting(true);
+      const params = new URLSearchParams({
+        from: fromIso,
+        to: toIso,
+      });
+      const res = await fetch(`/api/export/transactions?${params.toString()}`, {
+        method: "GET",
+      });
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(errorText || "Export failed.");
+      }
+      const blob = await res.blob();
+      const downloadUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = downloadUrl;
+      a.download = `transactions-${monthLabel.replace(/\s+/g, "-").toLowerCase()}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(downloadUrl);
+      toast.success("CSV export started.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to export CSV.");
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   const groupedByDay = useMemo(() => {
     const groups = new Map<string, TxRow[]>();
@@ -113,6 +147,9 @@ export default function AdminTransactionsPage() {
             Next Month
           </Button>
           <Button onClick={loadRows}>Refresh</Button>
+          <Button disabled={isExporting} onClick={handleExport} variant="secondary">
+            {isExporting ? "Exporting..." : "Export CSV"}
+          </Button>
         </CardContent>
       </Card>
 

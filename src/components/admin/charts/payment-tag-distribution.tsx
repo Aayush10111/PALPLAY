@@ -7,7 +7,7 @@ interface DataPoint {
   value: number;
 }
 
-const colors = ["#0ea5e9", "#22c55e", "#f59e0b", "#ef4444", "#a855f7", "#14b8a6", "#64748b"];
+const colors = ["#facc15", "#9ca3af", "#22c55e", "#f59e0b", "#64748b", "#eab308", "#ef4444"];
 
 export function PaymentTagDistributionChart({ data }: { data: DataPoint[] }) {
   return (
@@ -19,7 +19,14 @@ export function PaymentTagDistributionChart({ data }: { data: DataPoint[] }) {
               <Cell fill={colors[index % colors.length]} key={entry.name} />
             ))}
           </Pie>
-          <Tooltip />
+          <Tooltip
+            contentStyle={{
+              background: "#111827",
+              border: "1px solid #1f2937",
+              borderRadius: "8px",
+              color: "#f9fafb",
+            }}
+          />
         </PieChart>
       </ResponsiveContainer>
     </div>

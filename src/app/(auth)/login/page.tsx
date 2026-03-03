@@ -94,22 +94,22 @@ export default function LoginPage() {
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-6xl items-center justify-center p-4 sm:p-6 md:p-10">
       <div className="grid w-full max-w-5xl gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-        <Card className="border-2 bg-gradient-to-br from-emerald-100/70 to-cyan-100/60 shadow-sm">
+        <Card className="border border-border bg-card shadow-sm">
           <CardHeader className="space-y-4">
-            <p className="w-fit rounded-full border border-orange-700/30 bg-orange-100/70 px-3 py-1 text-xs font-medium text-orange-700">
-              PAL PAY HUSTEL
+            <p className="w-fit rounded-full border border-border bg-secondary px-3 py-1 text-xs font-medium text-primary">
+              SHIFTOPS
             </p>
             <CardTitle className="text-3xl leading-tight md:text-4xl">
               Log in to manage daily transactions, shifts, and analytics.
             </CardTitle>
-            <CardDescription className="max-w-xl text-base text-slate-700">
+            <CardDescription className="max-w-xl text-base text-muted-foreground">
               Use your assigned account. Workers access personal workflow pages. Admins access system-wide analytics
               and management tools.
             </CardDescription>
           </CardHeader>
         </Card>
 
-        <Card className="border-2 shadow-sm">
+        <Card className="border border-border shadow-sm">
           <CardHeader>
             <CardTitle>Sign In</CardTitle>
             <CardDescription>

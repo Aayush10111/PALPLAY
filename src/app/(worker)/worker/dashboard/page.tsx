@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -101,6 +101,7 @@ export default function WorkerDashboardPage() {
   const [txTab, setTxTab] = useState<"income" | "cashout">("income");
   const [editingTransactionId, setEditingTransactionId] = useState<string | null>(null);
   const [pendingDeleteTransaction, setPendingDeleteTransaction] = useState<TransactionRow | null>(null);
+  const txSectionRef = useRef<HTMLDivElement | null>(null);
 
   const [mockTransactions, setMockTransactions] = useState<TransactionRow[]>(MOCK_TRANSACTIONS as TransactionRow[]);
   const [mockShifts, setMockShifts] = useState<ShiftRow[]>(MOCK_SHIFTS as ShiftRow[]);
@@ -530,6 +531,11 @@ export default function WorkerDashboardPage() {
     }
   };
 
+  const jumpToTransactionTab = (tab: "income" | "cashout") => {
+    setTxTab(tab);
+    txSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
     <div className="space-y-6">
       <div className="space-y-1">
@@ -547,17 +553,35 @@ export default function WorkerDashboardPage() {
             <span className="text-sm text-muted-foreground">Today Hours: {todayHours.toFixed(2)}</span>
             <span className="text-sm text-muted-foreground">Last 7 Days: {weekHours.toFixed(2)}</span>
           </div>
-          <Button
-            className="h-16 w-full text-lg font-semibold md:w-auto md:px-12"
-            disabled={isShiftSaving || isLoading}
-            onClick={activeShift ? handleClockOut : handleClockIn}
-          >
-            {activeShift ? "CLOCK OUT" : "CLOCK IN"}
-          </Button>
+          <div className="grid gap-3 lg:grid-cols-[1fr_auto] lg:items-end">
+            <Button
+              className="h-16 w-full text-lg font-semibold lg:max-w-md"
+              disabled={isShiftSaving || isLoading}
+              onClick={activeShift ? handleClockOut : handleClockIn}
+            >
+              {activeShift ? "CLOCK OUT" : "CLOCK IN"}
+            </Button>
+            <div className="flex gap-2">
+              <Button
+                className="flex-1 lg:flex-none"
+                onClick={() => jumpToTransactionTab("income")}
+                variant="secondary"
+              >
+                Add Income
+              </Button>
+              <Button
+                className="flex-1 lg:flex-none"
+                onClick={() => jumpToTransactionTab("cashout")}
+                variant="secondary"
+              >
+                Add Cashout
+              </Button>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
-      <Card className="border-2">
+      <Card className="border-2" ref={txSectionRef}>
         <CardHeader>
           <CardTitle>Add Transaction</CardTitle>
         </CardHeader>

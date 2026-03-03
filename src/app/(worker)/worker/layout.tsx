@@ -12,18 +12,21 @@ export default async function WorkerLayout({
   await requireRole("worker");
 
   return (
-    <div className="min-h-screen">
-      <AppShellNav
-        links={[
-          { href: "/worker/dashboard", label: "Dashboard" },
-        ]}
-        rightSlot={<LogoutButton />}
-        subtitle="All worker actions in one place."
-        title="PAL PAY HUSTEL Worker Console"
-        tone="worker"
-      />
-      <main className="mx-auto w-full max-w-7xl px-3 py-4 sm:px-4 sm:py-6 md:px-6">{children}</main>
-    </div>
+    <AppShellNav
+      links={[
+        { href: "/worker/dashboard", label: "Dashboard" },
+        { href: "/worker/transactions", label: "Transactions" },
+        { href: "/worker/shifts", label: "Shifts" },
+        { href: "/worker/reports", label: "Reports" },
+        { href: "/worker/tasks", label: "My Tasks" },
+      ]}
+      rightSlot={<LogoutButton />}
+      role="worker"
+      subtitle="Clock in, record transactions, and monitor your performance."
+      title="ShiftOps Worker Console"
+    >
+      {children}
+    </AppShellNav>
   );
 }
 

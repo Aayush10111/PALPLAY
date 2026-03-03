@@ -12,11 +12,18 @@ export function NetTrendChart({ data }: { data: DataPoint[] }) {
     <div className="h-72 w-full">
       <ResponsiveContainer height="100%" width="100%">
         <BarChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="date" />
-          <YAxis />
-          <Tooltip />
-          <Bar dataKey="net" fill="#2563eb" radius={[4, 4, 0, 0]} />
+          <CartesianGrid stroke="#334155" strokeDasharray="3 3" />
+          <XAxis dataKey="date" stroke="#9ca3af" />
+          <YAxis stroke="#9ca3af" />
+          <Tooltip
+            contentStyle={{
+              background: "#111827",
+              border: "1px solid #1f2937",
+              borderRadius: "8px",
+              color: "#f9fafb",
+            }}
+          />
+          <Bar dataKey="net" fill="#facc15" radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>
